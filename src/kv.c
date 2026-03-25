@@ -22,14 +22,14 @@ int kv_put(kv_t *db, const char *key, const char *value){
 	size_t idx=hash(key, db->capacity);
 	
 	for(int i= 0; i< db->capacity-1; ++i){
-		size_t real_idx=(idx+1)%db->capacity;
+		size_t real_idx=(idx+i)%db->capacity;
 		
 		kv_entry_t *entry=&db->entries[real_idx];	
 		if(entry->key && entry->key != TOMBSTONE && !strcmp(entry->key, key)){
 			char* newval=strdup(value);
 			if(!newval) return -1;
 			entry->value=newval;
-			return real_idx;
+			return 0;
 		}
 
 		if(entry->key== NULL || entry->key == TOMBSTONE ){
@@ -43,7 +43,7 @@ int kv_put(kv_t *db, const char *key, const char *value){
 			entry->key=newkey;
                         entry->value=newval;
                         db->count++;
-		       	return real_idx;
+		       	return 0;
 		}
 
 	}
