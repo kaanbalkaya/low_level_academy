@@ -67,6 +67,26 @@ char  *kv_get(kv_t *db, const char *key){
 
 }
 
+int    kv_delete(kv_t *db, const char *key){
+	if(!db || !key ) return -1;
+        size_t idx=hash(key, db->capacity);
+
+        for(int i= 0; i< db->capacity-1; ++i){
+                size_t real_idx=(idx+i)%db->capacity;
+                kv_entry_t *entry=&db->entries[real_idx];
+                if(entry->key && !strcmp(entry->key, key)){
+                        free(entry->key);
+			free(entry->value);
+			entry->key=TOMBSTONE;
+			entry->value=NULL;
+			db->count--;
+			return 0;
+                }
+        }
+	return -1;
+}
+
+
 kv_t *kv_init(size_t capacity){
 	if(capacity ==0 ){
 		return NULL;
