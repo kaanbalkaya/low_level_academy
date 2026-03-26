@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <kv.h>
 #include <assert.h>
+#include <string.h>
+
 int main(){
 
 	kv_t *kv=kv_init(3);
@@ -16,7 +18,13 @@ int main(){
 	assert(db != NULL);
 	assert(db->capacity == 16);
 	assert(db->count == 0);
-	//kv_free(db);
-		
+	
+	
+
+	kv_put(db, "name", "alice");
+	assert(strcmp(kv_get(db, "name"), "alice") == 0);
+	assert(kv_get(db, "missing") == NULL);
+
+	//kv_free(db);	
 	return 0;
 }
