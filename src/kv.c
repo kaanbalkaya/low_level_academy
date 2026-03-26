@@ -61,6 +61,8 @@ char  *kv_get(kv_t *db, const char *key){
 		if(entry->key && !strcmp(entry->key, key)){
                         return entry->value;
                 }
+		if(entry->key==TOMBSTONE)
+			return NULL;
 	}
 
 	return NULL;
