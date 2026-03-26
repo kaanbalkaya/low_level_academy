@@ -2,7 +2,7 @@
 #define KV_H
 #include <stdlib.h>
 
-#define TOMBSTONE ((char *)0x1)
+#define TOMBSTONE 0x1
 
 
 typedef struct{

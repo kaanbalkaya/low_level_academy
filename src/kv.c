@@ -1,6 +1,7 @@
 #include <kv.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 size_t hash(const char *val, size_t capacity){
 	size_t hash =0x13371337deadbeef;
@@ -25,25 +26,25 @@ int kv_put(kv_t *db, const char *key, const char *value){
 		size_t real_idx=(idx+i)%db->capacity;
 		
 		kv_entry_t *entry=&db->entries[real_idx];	
-		if(entry->key && entry->key != TOMBSTONE && !strcmp(entry->key, key)){
+		if(entry->key && entry->key != (void *)TOMBSTONE && !strcmp(entry->key, key)){
 			char* newval=strdup(value);
 			if(!newval) return -1;
 			entry->value=newval;
 			return 0;
 		}
 
-		if(entry->key== NULL || entry->key == TOMBSTONE ){
+		if(entry->key== NULL || entry->key == (void *)TOMBSTONE ){
 			char* newkey=strdup(key);
 			char* newval=strdup(value);
-                        if(!newval||!newkey) {
+            if(!newval||!newkey) {
 				free(newkey);
 				free(newval);
 				return -1;
 			}
 			entry->key=newkey;
-                        entry->value=newval;
-                        db->count++;
-		       	return 0;
+            entry->value=newval;
+            db->count++;
+		    return 0;
 		}
 
 	}
@@ -53,14 +54,22 @@ int kv_put(kv_t *db, const char *key, const char *value){
 
 char  *kv_get(kv_t *db, const char *key){
 	if(!db || !key ) return NULL;
-        size_t idx=hash(key, db->capacity);
+	size_t idx=hash(key, db->capacity);
 
-        for(int i= 0; i< db->capacity-1; ++i){
-                size_t real_idx=(idx+i)%db->capacity;
-                kv_entry_t *entry=&db->entries[real_idx];
-		if(entry->key && !strcmp(entry->key, key)){
-                        return entry->value;
-                }
+	for(int i= 0; i< db->capacity-1; ++i){
+
+		size_t real_idx=(idx+i)%db->capacity;
+
+		kv_entry_t *entry=&db->entries[real_idx];
+
+		if(entry->key==NULL) return NULL;
+
+		if(entry->key == (void *)TOMBSTONE) return NULL;
+		if(entry->key && !strcmp(entry->key, key)  ){
+
+			return entry->value;
+		}
+
 	}
 
 	return NULL;
@@ -69,20 +78,21 @@ char  *kv_get(kv_t *db, const char *key){
 
 int    kv_delete(kv_t *db, const char *key){
 	if(!db || !key ) return -1;
-        size_t idx=hash(key, db->capacity);
+	size_t idx=hash(key, db->capacity);
 
-        for(int i= 0; i< db->capacity-1; ++i){
-                size_t real_idx=(idx+i)%db->capacity;
-                kv_entry_t *entry=&db->entries[real_idx];
-                if(entry->key && !strcmp(entry->key, key)){
-                        free(entry->key);
+	for(int i= 0; i< db->capacity-1; ++i){
+		size_t real_idx=(idx+i)%db->capacity;
+		kv_entry_t *entry=&db->entries[real_idx];
+		if(entry->key==NULL) return -1;
+		if(entry->key && !strcmp(entry->key, key)){
+			free(entry->key);
 			free(entry->value);
-			entry->key=TOMBSTONE;
+			entry->key=(void *)TOMBSTONE;
 			entry->value=NULL;
 			db->count--;
 			return 0;
-                }
-        }
+		}
+	}
 	return -1;
 }
 

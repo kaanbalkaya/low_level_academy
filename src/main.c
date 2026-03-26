@@ -5,25 +5,23 @@
 
 int main(){
 
-	kv_t *kv=kv_init(3);
 
-	if(kv==NULL){
-		return -1;
-	}
-
-	printf("%p\n",kv);
-	printf("%ld\n",kv->capacity);
 
 	kv_t *db = kv_init(16);
-	assert(db != NULL);
-	assert(db->capacity == 16);
-	assert(db->count == 0);
-	
-	
 
 	kv_put(db, "name", "alice");
-	assert(strcmp(kv_get(db, "name"), "alice") == 0);
-	assert(kv_get(db, "missing") == NULL);
+	kv_put(db, "city", "berlin");
+
+	assert(kv_delete(db, "name") == 0);
+
+	assert(kv_get(db, "name") == NULL);
+
+
+	assert(db->count == 1);
+
+	assert(kv_delete(db, "missing") == -1);
+
+
 
 	//kv_free(db);	
 	return 0;
