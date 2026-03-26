@@ -97,6 +97,23 @@ int    kv_delete(kv_t *db, const char *key){
 }
 
 
+void   kv_free(kv_t *db){
+	if(!db) return;
+	for(int i=0;i<db->capacity-1;++i){
+		kv_entry_t *e=&db->entries[i];
+		if(e->key && e->key!=(void*)TOMBSTONE){
+			free(e->key);
+			free(e->value);
+			e->key=NULL;
+			e->value=NULL;
+		}
+	}
+	free(db->entries);
+	free(db);
+}
+
+
+
 kv_t *kv_init(size_t capacity){
 	if(capacity ==0 ){
 		return NULL;

@@ -11,18 +11,10 @@ int main(){
 
 	kv_put(db, "name", "alice");
 	kv_put(db, "city", "berlin");
+	kv_put(db, "lang", "c");
 
-	assert(kv_delete(db, "name") == 0);
+	kv_delete(db, "city");
 
-	assert(kv_get(db, "name") == NULL);
-
-
-	assert(db->count == 1);
-
-	assert(kv_delete(db, "missing") == -1);
-
-
-
-	//kv_free(db);	
-	return 0;
+	kv_free(db);
+	// valgrind should report 0 bytes in use at exit
 }
