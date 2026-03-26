@@ -61,8 +61,6 @@ char  *kv_get(kv_t *db, const char *key){
 		if(entry->key && !strcmp(entry->key, key)){
                         return entry->value;
                 }
-		if(entry->key==TOMBSTONE)
-			return NULL;
 	}
 
 	return NULL;
@@ -77,8 +75,8 @@ int    kv_delete(kv_t *db, const char *key){
                 size_t real_idx=(idx+i)%db->capacity;
                 kv_entry_t *entry=&db->entries[real_idx];
                 if(entry->key && !strcmp(entry->key, key)){
-                //        free(entry->key);
-		//	free(entry->value);
+                        free(entry->key);
+			free(entry->value);
 			entry->key=TOMBSTONE;
 			entry->value=NULL;
 			db->count--;
